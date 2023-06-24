@@ -2,11 +2,18 @@
 #include "helpers.h"
 #include "server.h"
 
-struct cmdStruct cmdStruct[] = {
-    {"help", helpMenu}, {"?", helpMenu}, {"banner", printBanner}, {"ascii", printBanner}, {"clear", clearScreen}, {"cls", clearScreen}, {"shutdown", shutdownServer}, {"quit", shutdownServer},
-};
+// struct cmdStruct cmdStruct[] = {
+//     {"help", helpMenu}, 
+//     {"?", helpMenu}, 
+//     {"banner", printBanner}, 
+//     {"ascii", printBanner}, 
+//     {"clear", clearScreen}, 
+//     {"cls", clearScreen}, 
+//     {"shutdown", shutdownServer}, 
+//     {"quit", shutdownServer},
+// };
 
-int helpMenu() {
+int helpMenu(void) {
     const char* helpMenu[] = {" Commands          Description\n", " --------          -----------\n", " ?/help            Displays available commands.\n", " clients/list      List connected clients and their identifiers.\n", " select <id>       Allows you to bind to a specified client.\n", " server            Shows details about the CnC server.\n", " banner/ascii      Displays the ASCII banner.\n", " clear/cls         Clears the screen.\n", " shutdown/quit     Shuts down the server.\n"};
     char tempBuffer[BUFFER_SIZE];
     for (int i = 0; i < sizeof(helpMenu) / sizeof(helpMenu[0]); i++) {
@@ -17,7 +24,7 @@ int helpMenu() {
     return 0;
 };
 
-int printBanner() {
+int printBanner(void) {
     const char* banner[] = {"       \033[38;5;160m┬\033[38;5;160m \033[38;5;160m \033[38;5;160m┬\033[38;5;160m \033[38;5;160m┌\033[38;5;160m─\033[38;5;160m┐\033[38;5;160m \033[38;5;160m┌\033[38;5;160m┐\033[38;5;160m┌\033[38;5;160m \033[38;5;160m \033[38;5;160m┬\033[38;5;160m \033[38;5;160m \033[38;5;160m┌\033[38;5;160m┬\033[38;5;160m┐\033[38;5;160m \033[38;5;160m┬\033[38;5;160m \033[38;5;160m┬\n", "       \033[38;5;160m└\033[38;5;160m┐\033[38;5;160m┌\033[38;5;160m┘\033[38;5;161m \033[38;5;161m├\033[38;5;161m─\033[38;5;161m┤\033[38;5;161m \033[38;5;161m│\033[38;5;161m│\033[38;5;161m│\033[38;5;161m \033[38;5;161m \033[38;5;161m│\033[38;5;161m \033[38;5;161m \033[38;5;161m \033[38;5;161m│\033[38;5;161m \033[38;5;161m \033[38;5;161m└\033[38;5;161m┬\033[38;5;161m┘\n", "       \033[38;5;161m \033[38;5;161m└\033[38;5;161m┘\033[38;5;161m \033[38;5;162m \033[38;5;162m┴\033[38;5;162m \033[38;5;162m┴\033[38;5;162m \033[38;5;162m┘\033[38;5;162m└\033[38;5;162m┘\033[38;5;162m \033[38;5;162m \033[38;5;162m┴\033[38;5;162m \033[38;5;162m \033[38;5;162m \033[38;5;162m┴\033[38;5;162m \033[38;5;162m \033[38;5;162m \033[38;5;162m┴\033[38;5;162m \n", "  ~~ Made By: \033[38;5;160mhttps://github.com/9xN\033[38;5;162m ~~\n"};
     for (int i = 0; i < sizeof(banner) / sizeof(banner[0]); i++) {
         printf("%s", banner[i]);
@@ -25,19 +32,19 @@ int printBanner() {
     return 0;
 };
 
-int clearScreen() {
+int clearScreen(void) {
     printf("\033[H\033[2J\n");
     return 0;
 };
 
-int shutdownServer() {
+int shutdownServer(void) {
     char tempBuffer[BUFFER_SIZE];
-    sprintf(tempBuffer, " Shutting down server...");
+    sprintf(tempBuffer, " Shutting down server...\n\n");
     sprint(tempBuffer);
     return 0;
 };
 
-int listClients() {
+int listClients(void) {
     char tempBuffer[BUFFER_SIZE];
     sprintf(tempBuffer, " Connected clients...");
     sprint(tempBuffer);
@@ -70,6 +77,8 @@ int selectClient(const char* args) {
             sprintf(clientAddressPort, "%s:%d", inet_ntoa(clientSock.sin_addr), ntohs(clientSock.sin_port));
             sprintf(tempBuffer, " Binding to client %d at %s\n", clientID, clientAddressPort);
             sprint(tempBuffer);
+            sprintf(tempBuffer, "%s/%s%s", colours[4], colours[3], clientAddressPort);
+            printPrompt(tempBuffer);
         }
 
         while (1) {
@@ -78,6 +87,7 @@ int selectClient(const char* args) {
             printPrompt(tempBuffer);
 
             if (strcmp(buffer, "exit") == 0) {
+                printf("\n");
                 sprintf(tempBuffer, " Unbinding from client %d at %s\n", clientID, clientAddressPort);
                 sprint(tempBuffer);
                 break;

@@ -19,7 +19,7 @@ void sprint(char* string) {
     fflush(stdout);
 }
 
-void newPrompt() {
+void newPrompt(void) {
     printf("   %s┌────────────%s[%s$%s]\n", colours[0], colours[1], colours[2], colours[1]);
     fflush(stdout);
 }
@@ -37,15 +37,15 @@ char* getInput(char* inputBuffer, int bufferSize) {
     return inputBuffer;
 }
 
-void execCmd(const char* command) {
-    int numCommands = sizeof(cmdStruct) / sizeof(cmdStruct[0]);
-    for (int i = 0; i < numCommands; i++) {
-        if (strcmp(command, cmdStruct[i].command) == 0) {
-            cmdStruct[i].functionPtr();
-            return;
-        }
-    }
-}
+// void execCmd(const char* command) {
+//     int numCommands = sizeof(cmdStruct) / sizeof(cmdStruct[0]);
+//     for (int i = 0; i < numCommands; i++) {
+//         if (strcmp(command, cmdStruct[i].command) == 0) {
+//             cmdStruct[i].functionPtr();
+//             return;
+//         }
+//     }
+// }
 
 int handleCommand(const char* command, const char* args) {
     char buffer[BUFFER_SIZE];

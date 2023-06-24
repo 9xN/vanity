@@ -28,9 +28,7 @@ void* handleClient(void* arg) {
         sprint(tempBuffer);
         //printPrompt("");
     }
-
-    int i;
-    for (i = 0; i < MAX_CLIENTS; i++) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clientSockets[i] == clientSocket) {
             clientSockets[i] = 0;
             break;
@@ -43,7 +41,7 @@ void* handleClient(void* arg) {
 }
 
 int start(void) {
-    int serverFd, activity, readSize, maxSd, sd, i;
+    int serverFd, activity, readSize, maxSd, sd;
     struct sockaddr_in serverAddr;
     socklen_t addrlen;
     char buffer[BUFFER_SIZE];
@@ -68,7 +66,7 @@ int start(void) {
         exit(1);
     }
 
-    for (i = 0; i < MAX_CLIENTS; i++) {
+    for (int i = 0; i < MAX_CLIENTS; i++) {
         clientSockets[i] = 0;
     }
     maxSd = serverFd;
@@ -83,7 +81,7 @@ int start(void) {
         FD_SET(serverFd, &readFds);
         FD_SET(STDIN_FILENO, &readFds);
 
-        for (i = 0; i < MAX_CLIENTS; i++) {
+        for (int i = 0; i < MAX_CLIENTS; i++) {
             sd = clientSockets[i];
             if (sd > 0) {
                 FD_SET(sd, &readFds);
@@ -108,7 +106,7 @@ int start(void) {
                 exit(1);
             }
 
-            for (i = 0; i < MAX_CLIENTS; i++) {
+            for (int i = 0; i < MAX_CLIENTS; i++) {
                 if (clientSockets[i] == 0) {
                     clientSockets[i] = newSocket;
 
@@ -140,7 +138,7 @@ int start(void) {
 
             int stat = handleCommand(command, args);
             if (stat == 1) {
-                for (i = 0; i < MAX_CLIENTS; i++) {
+                for (int i = 0; i < MAX_CLIENTS; i++) {
                     sd = clientSockets[i];
                     if (sd > 0) {
                         //printf("Sending to client %d: %s\n", i, buffer);
@@ -150,7 +148,7 @@ int start(void) {
                     }
                 }
             } else if (stat == 2) {
-                for (i = 0; i < MAX_CLIENTS; i++) {
+                for (int i = 0; i < MAX_CLIENTS; i++) {
                     sd = clientSockets[i];
                     if (sd > 0) {
                         close(sd);

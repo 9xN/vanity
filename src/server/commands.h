@@ -7,18 +7,18 @@
 #include <errno.h>
 #include <unistd.h>
 
-struct cmdStruct {
-    const char* command;
-    int (*functionPtr)();
-};
+// struct cmdStruct {
+//     const char* command;
+//     int (*functionPtr)();
+// };
 
-struct cmdStruct cmdStruct[];
+// struct cmdStruct cmdStruct[];
 
-int helpMenu();
-int printBanner();
-int clearScreen();
-int shutdownServer();
-int listClients();
+int helpMenu(void);
+int printBanner(void);
+int clearScreen(void);
+int shutdownServer(void);
+int listClients(void);
 int selectClient(const char* args);
 
 #endif /* COMMANDS_H */
