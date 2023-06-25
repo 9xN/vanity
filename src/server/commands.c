@@ -2,17 +2,6 @@
 #include "helpers.h"
 #include "server.h"
 
-// struct cmdStruct cmdStruct[] = {
-//     {"help", helpMenu}, 
-//     {"?", helpMenu}, 
-//     {"banner", printBanner}, 
-//     {"ascii", printBanner}, 
-//     {"clear", clearScreen}, 
-//     {"cls", clearScreen}, 
-//     {"shutdown", shutdownServer}, 
-//     {"quit", shutdownServer},
-// };
-
 int helpMenu(void) {
     const char* helpMenu[] = {" Commands          Description\n", " --------          -----------\n", " ?/help            Displays available commands.\n", " clients/list      List connected clients and their identifiers.\n", " select <id>       Allows you to bind to a specified client.\n", " server            Shows details about the CnC server.\n", " banner/ascii      Displays the ASCII banner.\n", " clear/cls         Clears the screen.\n", " shutdown/quit     Shuts down the server.\n"};
     char tempBuffer[BUFFER_SIZE];
@@ -79,8 +68,11 @@ int selectClient(const char* args) {
             sprint(tempBuffer);
             sprintf(tempBuffer, "%s/%s%s", colours[4], colours[3], clientAddressPort);
             printPrompt(tempBuffer);
+        } else {
+            sprintf(tempBuffer, " Failed to bind to client %d at %s\n", clientID, clientAddressPort);
+            sprint(tempBuffer);
+            printPrompt("");
         }
-
         while (1) {
             sprintf(tempBuffer, "%s/%s%s", colours[4], colours[3], clientAddressPort);
             getInput(buffer, BUFFER_SIZE);

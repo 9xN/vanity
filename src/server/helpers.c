@@ -37,18 +37,7 @@ char* getInput(char* inputBuffer, int bufferSize) {
     return inputBuffer;
 }
 
-// void execCmd(const char* command) {
-//     int numCommands = sizeof(cmdStruct) / sizeof(cmdStruct[0]);
-//     for (int i = 0; i < numCommands; i++) {
-//         if (strcmp(command, cmdStruct[i].command) == 0) {
-//             cmdStruct[i].functionPtr();
-//             return;
-//         }
-//     }
-// }
-
 int handleCommand(const char* command, const char* args) {
-    char buffer[BUFFER_SIZE];
     if (strcmp(command, "help") == 0 || strcmp(command, "?") == 0) {
         helpMenu();
         return 0;

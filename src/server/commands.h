@@ -7,13 +7,6 @@
 #include <errno.h>
 #include <unistd.h>
 
-// struct cmdStruct {
-//     const char* command;
-//     int (*functionPtr)();
-// };
-
-// struct cmdStruct cmdStruct[];
-
 int helpMenu(void);
 int printBanner(void);
 int clearScreen(void);

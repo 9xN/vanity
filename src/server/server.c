@@ -10,7 +10,7 @@ void* handleClient(void* arg) {
     char buffer[BUFFER_SIZE], tempBuffer[BUFFER_SIZE];
 
     printf("\n");
-    sprintf(tempBuffer, " Client connected: %s:%d\n", inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port));
+    sprintf(tempBuffer, " Client connected: %s%s:%d%s\n", colours[6], inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port), colours[7]);
     sprint(tempBuffer);
     printPrompt("");
 
@@ -18,15 +18,15 @@ void* handleClient(void* arg) {
         readSize = read(clientSocket, buffer, BUFFER_SIZE);
         if (readSize <= 0) {
             printf("\n");
-            sprintf(tempBuffer, " Client disconnected: %s:%d\n", inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port));
+            sprintf(tempBuffer, " Client disconnected: %s%s:%d%s\n", colours[6], inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port), colours[7]);
             sprint(tempBuffer);
             printPrompt("");
             break;
         }
         printf("\n");
-        sprintf(tempBuffer, " Received from client %s:%d: %s\n", inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port), buffer);
+        sprintf(tempBuffer, " Received from client %s%s:%d: %s%s\n", colours[6], inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port), buffer, colours[7]);
         sprint(tempBuffer);
-        //printPrompt("");
+        printPrompt("");
     }
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clientSockets[i] == clientSocket) {
@@ -132,21 +132,22 @@ int start(void) {
         }
 
         if (FD_ISSET(STDIN_FILENO, &readFds)) {
-            getInput(buffer, BUFFER_SIZE);
             char command[BUFFER_SIZE], args[BUFFER_SIZE];
+            getInput(buffer, BUFFER_SIZE);
             sscanf(buffer, "%s %[^\n]", command, args);
-
             int stat = handleCommand(command, args);
-            if (stat == 1) {
+            if (stat == 0) {
+                printPrompt("");
+            } else if (stat == 1) {
                 for (int i = 0; i < MAX_CLIENTS; i++) {
                     sd = clientSockets[i];
                     if (sd > 0) {
-                        //printf("Sending to client %d: %s\n", i, buffer);
                         if (send(sd, buffer, strlen(buffer), 0) == -1) {
                             perror("send");
                         }
                     }
                 }
+                printPrompt("");
             } else if (stat == 2) {
                 for (int i = 0; i < MAX_CLIENTS; i++) {
                     sd = clientSockets[i];
@@ -157,8 +158,8 @@ int start(void) {
                 close(serverFd);
                 exit(0);
             }
+            memset(command, 0, sizeof(command));
         }
-        printPrompt("");
         fflush(stdout);
     }
     return 0;
