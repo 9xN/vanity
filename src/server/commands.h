@@ -12,6 +12,8 @@ int printBanner(void);
 int clearScreen(void);
 int shutdownServer(void);
 int listClients(void);
+int serverInfo(void);
 int selectClient(const char* args);
+extern int shutdownStatus;
 
 #endif /* COMMANDS_H */

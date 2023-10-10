@@ -20,7 +20,10 @@ void* handleClient(void* arg) {
             printf("\n");
             sprintf(tempBuffer, " Client disconnected: %s%s:%d%s\n", colours[6], inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port), colours[7]);
             sprint(tempBuffer);
-            printPrompt("");
+            if (shutdownStatus != 1) {
+                printPrompt("");
+            }
+            //printPrompt("");
             break;
         }
         printf("\n");

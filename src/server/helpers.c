@@ -26,7 +26,7 @@ void newPrompt(void) {
 
 void printPrompt(char* clientAddressPort) {
     char tempBuffer[BUFFER_SIZE];
-    sprintf(tempBuffer, "root%s@%svanity%s%s ~ %s", colours[4], colours[3], clientAddressPort, colours[5], colours[0]);
+    sprintf(tempBuffer, "%s[%sroot%s@%svanity%s%s ~ %s", colours[0], colours[5], colours[4], colours[3], clientAddressPort, colours[5], colours[0]);
     sprint(tempBuffer);
     fflush(stdout);
 }
@@ -50,16 +50,21 @@ int handleCommand(const char* command, const char* args) {
         clearScreen();
         newPrompt();
         return 0;
-    } else if (strcmp(command, "shutdown") == 0 || strcmp(command, "exit") == 0) {
+    } else if (strcmp(command, "shutdown") == 0 || strcmp(command, "quit") == 0) {
         shutdownServer();
         return 2;
     } else if (strcmp(command, "list") == 0 || strcmp(command, "clients") == 0) {
         listClients();
         return 0;
-    } else if (strcmp(command, "select") == 0) {
+    } else if (strcmp(command, "server") == 0 || strcmp(command, "info") == 0) {
+        serverInfo();
+        return 0;
+    } 
+    else if (strcmp(command, "select") == 0 || strcmp(command, "bind") == 0) {
         selectClient(args);
         return 0;
-    } else {
+    }
+    else {
         return 1;
     }
     printPrompt("");
