@@ -5,7 +5,7 @@
 int shutdownStatus = 0;
 
 int helpMenu(void) {
-    const char* helpMenu[] = {" Commands          Description\n", " --------          -----------\n", " ?/help            Displays available commands.\n", " clients/list      List connected clients and their identifiers.\n", " select/bind <id>  Allows you to bind to a specified client.\n", " server/info       Shows details about the CnC server.\n", " banner/ascii      Displays the ASCII banner.\n", " clear/cls         Clears the screen.\n", " shutdown/quit     Shuts down the server.\n"};
+    const char* helpMenu[] = {" Commands          Description\n", " --------          -----------\n", " ?/help            Displays available commands.\n", " clients/list      List connected clients and their identifiers.\n", " select/bind <id>  Allows you to bind to a specified client.\n", " kick/boot <id>    Allows you to disconnect from a specified client.\n", " server/info       Shows details about the CnC server.\n", " banner/ascii      Displays the ASCII banner.\n", " clear/cls         Clears the screen.\n", " shutdown/quit     Shuts down the server.\n"};
     char tempBuffer[BUFFER_SIZE];
     for (int i = 0; i < sizeof(helpMenu) / sizeof(helpMenu[0]); i++) {
         sprintf(tempBuffer, "%s", helpMenu[i]);
@@ -33,28 +33,51 @@ int shutdownServer(void) {
     sprintf(tempBuffer, " Shutting down server...");
     sprint(tempBuffer);
     shutdownStatus = 1;
-    return 0;
+    return 2;
 };
 
 int listClients(void) {
     char tempBuffer[BUFFER_SIZE];
-    sprintf(tempBuffer, " Connected clients...");
+    sprintf(tempBuffer, " Connected clients...\n");
     sprint(tempBuffer);
-    printf("\n");
     for (int i = 0; i < MAX_CLIENTS; i++) {
         int sd = clientSockets[i];
         if (sd > 0) {
             struct sockaddr_in clientSock;
             socklen_t clientSockLen = sizeof(clientSock);
             if (getpeername(sd, (struct sockaddr*)&clientSock, &clientSockLen) == 0) {
-                sprintf(tempBuffer, " %d. %s:%d\n", i + 1, inet_ntoa(clientSock.sin_addr), ntohs(clientSock.sin_port));
+                char clientAddressPort[BUFFER_SIZE];
+                fmtClientPort(clientAddressPort, clientSock);
+                sprintf(tempBuffer, " %d. %s\n", i + 1, clientAddressPort);
                 sprint(tempBuffer);
-                continue;
             }
         }
     }
     return 0;
-};
+}
+
+int removeClient(const char* args) {
+    int clientID = atoi(args);
+    if (clientID >= 1 && clientID <= MAX_CLIENTS && clientSockets[clientID - 1] > 0) {
+        int clientSocket = clientSockets[clientID - 1];
+        struct sockaddr_in clientSock;
+        socklen_t clientSockLen = sizeof(clientSock);
+        if (getpeername(clientSocket, (struct sockaddr*)&clientSock, &clientSockLen) == 0) {
+            char tempBuffer[BUFFER_SIZE], clientAddressPort[BUFFER_SIZE], clientString[BUFFER_SIZE];
+            fmtClientPort(clientAddressPort, clientSock);
+            fmtClientID(clientString, clientID);
+            sprintf(tempBuffer, " Removing client %s at %s\n", clientString, clientAddressPort);
+            sprint(tempBuffer);
+            close(clientSocket);
+            clientSockets[clientID - 1] = 0;
+            return 0;
+        }
+    }
+    char tempBuffer[BUFFER_SIZE];
+    sprintf(tempBuffer, " Invalid client index specified or client not connected.\n");
+    sprint(tempBuffer);
+    return 1;
+}
 
 int serverInfo(void) {
     char tempBuffer[BUFFER_SIZE];
@@ -64,7 +87,6 @@ int serverInfo(void) {
             connectedClients++;
         }
     }
-
     sprintf(tempBuffer, " Server information\n");
     sprint(tempBuffer);
     sprintf(tempBuffer, " ------------------\n");
@@ -83,25 +105,30 @@ int serverInfo(void) {
     sprint(tempBuffer);
     return 0;
 };
+
 int selectClient(const char* args) {
     char buffer[BUFFER_SIZE], tempBuffer[BUFFER_SIZE], clientAddressPort[BUFFER_SIZE], clientString[BUFFER_SIZE];
     int clientID = atoi(args);
+    
     if (clientID >= 1 && clientID <= MAX_CLIENTS && clientSockets[clientID - 1] > 0) {
         int selectedClientSocket = clientSockets[clientID - 1];
         struct sockaddr_in clientSock;
         socklen_t clientSockLen = sizeof(clientSock);
-        sprintf(clientString, "%s%d%s", colours[6], clientID, colours[3]);
-        sprintf(clientAddressPort, "%s%s%s:%s%d%s", colours[6], inet_ntoa(clientSock.sin_addr), colours[3], colours[6], ntohs(clientSock.sin_port), colours[3]);
+
+        // Retrieve client information
         if (getpeername(selectedClientSocket, (struct sockaddr*)&clientSock, &clientSockLen) == 0) {
+            fmtClientPort(clientAddressPort, clientSock);
+            fmtClientID(clientString, clientID);
             sprintf(tempBuffer, " Binding to client %s at %s\n", clientString, clientAddressPort);
             sprint(tempBuffer);
             sprintf(tempBuffer, "%s/%s%s", colours[4], colours[3], clientAddressPort);
             printPrompt(tempBuffer);
         } else {
-            sprintf(tempBuffer, " Failed to bind to client %s at %s\n", clientString, clientAddressPort);
+            sprintf(tempBuffer, " Failed to bind to client %s\n", clientString);
             sprint(tempBuffer);
             printPrompt("");
         }
+
         while (1) {
             sprintf(tempBuffer, "%s/%s%s", colours[4], colours[3], clientAddressPort);
             getInput(buffer, BUFFER_SIZE);
@@ -109,12 +136,12 @@ int selectClient(const char* args) {
 
             if (strcmp(buffer, "exit") == 0) {
                 printf("\n");
-                sprintf(tempBuffer, " Unbinding from client %s at %s\n", clientString, clientAddressPort);
+                sprintf(tempBuffer, " Unbinding from client %s\n", clientString);
                 sprint(tempBuffer);
                 break;
             } else {
                 if (send(selectedClientSocket, buffer, strlen(buffer), 0) < 0) {
-                    sprintf(tempBuffer, " Failed to send data to client %s at %s\n", clientString, clientAddressPort);
+                    sprintf(tempBuffer, " Failed to send data to client %s\n", clientString);
                     sprint(tempBuffer);
                     break;
                 }

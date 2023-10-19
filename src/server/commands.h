@@ -14,6 +14,7 @@ int shutdownServer(void);
 int listClients(void);
 int serverInfo(void);
 int selectClient(const char* args);
+int removeClient(const char* args);
 extern int shutdownStatus;
 
 #endif /* COMMANDS_H */

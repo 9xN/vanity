@@ -31,6 +31,16 @@ void printPrompt(char* clientAddressPort) {
     fflush(stdout);
 }
 
+char* fmtClientPort(char* clientAddressPort, struct sockaddr_in clientAddress) {
+    sprintf(clientAddressPort, "%s%s%s:%s%d%s", colours[6], inet_ntoa(clientAddress.sin_addr), colours[3], colours[6], ntohs(clientAddress.sin_port), colours[3]);
+    return clientAddressPort;
+}
+
+char* fmtClientID(char* clientID, int id) {
+    sprintf(clientID, "%s%d%s", colours[6], id, colours[3]);
+    return clientID;
+}
+
 char* getInput(char* inputBuffer, int bufferSize) {
     fgets(inputBuffer, bufferSize, stdin);
     inputBuffer[strcspn(inputBuffer, "\n")] = '\0';
@@ -62,6 +72,10 @@ int handleCommand(const char* command, const char* args) {
     } 
     else if (strcmp(command, "select") == 0 || strcmp(command, "bind") == 0) {
         selectClient(args);
+        return 0;
+    }
+    else if (strcmp(command, "boot") == 0 || strcmp(command, "kick") == 0) {
+        removeClient(args);
         return 0;
     }
     else {

@@ -7,27 +7,31 @@ void* handleClient(void* arg) {
     clientDataT* clientData = (clientDataT*)arg;
     int clientSocket = clientData->socket, readSize;
     struct sockaddr_in clientAddress = clientData->address;
-    char buffer[BUFFER_SIZE], tempBuffer[BUFFER_SIZE];
-
+    char buffer[BUFFER_SIZE], tempBuffer[BUFFER_SIZE], clientAddressPort[BUFFER_SIZE];
+    fmtClientPort(clientAddressPort, clientAddress);
     printf("\n");
-    sprintf(tempBuffer, " Client connected: %s%s:%d%s\n", colours[6], inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port), colours[7]);
+    sprintf(tempBuffer, " Client connected: %s\n", clientAddressPort);
     sprint(tempBuffer);
     printPrompt("");
-
     while (1) {
         readSize = read(clientSocket, buffer, BUFFER_SIZE);
         if (readSize <= 0) {
-            printf("\n");
-            sprintf(tempBuffer, " Client disconnected: %s%s:%d%s\n", colours[6], inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port), colours[7]);
-            sprint(tempBuffer);
             if (shutdownStatus != 1) {
+                printf("\n");
+                sprintf(tempBuffer, " Client disconnected: %s\n", clientAddressPort);
+                sprint(tempBuffer);
                 printPrompt("");
             }
-            //printPrompt("");
             break;
         }
         printf("\n");
-        sprintf(tempBuffer, " Received from client %s%s:%d: %s%s\n", colours[6], inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port), buffer, colours[7]);
+        sprintf(tempBuffer, " Received from client %s:\n", clientAddressPort);
+        sprint(tempBuffer);
+        sprintf(tempBuffer, "%s───────────────────────────────\n", colours[0]);
+        sprint(tempBuffer);
+        sprintf(tempBuffer, " %s%s", colours[3], buffer);
+        sprint(tempBuffer);
+        sprintf(tempBuffer, "%s───────────────────────────────\n", colours[0]);
         sprint(tempBuffer);
         printPrompt("");
     }
@@ -37,7 +41,6 @@ void* handleClient(void* arg) {
             break;
         }
     }
-
     close(clientSocket);
     free(clientData);
     pthread_exit(NULL);
@@ -49,12 +52,10 @@ int start(void) {
     socklen_t addrlen;
     char buffer[BUFFER_SIZE];
     fd_set readFds;
-
     if ((serverFd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         exit(1);
     }
-
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     serverAddr.sin_port = htons(PORT);
